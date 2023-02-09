@@ -1,0 +1,38 @@
+const { Router } = require('express');
+const router = Router();
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+router.get('/', (req, res) => {
+    res.json({
+        message: 'Welcome to my API'
+    });
+});
+
+router.post('/signup', async (req, res) => {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+        return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const user = new User({ email, password: hash });
+    await user.save();
+
+    const token = jwt.sign({ _id: user._id }, 'secretkey', { expiresIn: '24h' });
+    res.

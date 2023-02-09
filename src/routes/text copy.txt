@@ -1,0 +1,42 @@
+const { Router } = require('express');
+const router = Router();
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'secretkey';
+
+router.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to my API'
+  });
+});
+
+router.post('/signup', async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = new User({ email, password: hashedPassword });
+  await user.save();
+
+  const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+    expiresIn: '24h'
+  });
+  res.json({ token });
+});
+
+router.post('/signin', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(401).json({ message: 'Email is not found' });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: 'Password is incorrect' });
+  }
+
+  const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+    expiresIn: '24h'
+  });
+  res.json({ token });
+});

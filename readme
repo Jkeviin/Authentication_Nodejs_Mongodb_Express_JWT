@@ -1,0 +1,4 @@
+// Se instala Express porque es un framework de NodeJS que nos permite crear servidores web de una manera muy sencilla
+// Se instala Mongoose porque es un ODM (Object Document Mapper) que nos permite mapear los objetos de nuestra aplicación con los documentos de nuestra base de datos
+// Se instala cors porque es un middleware que nos permite habilitar el acceso a recursos de un origen distinto al del servidor
+// se instala jsonwebtoken porque es un paquete que nos permite generar tokens de autenticación
